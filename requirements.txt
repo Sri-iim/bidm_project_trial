@@ -5,4 +5,5 @@ folium
 streamlit-folium
 scikit-learn
 pandas
+plotly
 numpy
