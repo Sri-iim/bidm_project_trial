@@ -1,114 +1,65 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import folium
-from streamlit_folium import folium_static
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, Lasso, Ridge
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import LabelEncoder
+# ... (other imports)
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.model_selection import cross_val_score
 
-# Streamlit UI
-st.set_page_config(page_title="Super Cool Regression App", layout="wide")
-st.title("📊 Super Interactive Regression Prediction App")
+# ... (rest of the code)
 
-# Load dataset from GitHub repository
-df = pd.read_csv("air_pollution_data.csv")
-
-# Convert date columns to datetime
-for col in df.select_dtypes(include=['object']).columns:
-    try:
-        df[col] = pd.to_datetime(df[col])
-    except:
-        pass  # Skip columns that aren't dates
-
-# Convert datetime columns to numerical values
-for col in df.select_dtypes(include=['datetime']).columns:
-    df[col + "_year"] = df[col].dt.year
-    df[col + "_month"] = df[col].dt.month
-    df[col + "_day"] = df[col].dt.day
-    df.drop(columns=[col], inplace=True)
-
-# Encode categorical columns
-for col in df.select_dtypes(include=['object']).columns:
-    df[col] = LabelEncoder().fit_transform(df[col])
-
-# Fill missing values
-df.fillna(df.mean(), inplace=True)
-
-st.write("### Preview of Dataset")
-st.dataframe(df.head())
-
-# Feature Selection
-target_col = st.selectbox("🎯 Select Target Variable", df.columns)
-features = st.multiselect("🔢 Select Feature Variables", df.columns, default=[col for col in df.columns if col != target_col])
-
-if target_col and features:
-    X = df[features]
-    y = df[target_col]
-    
-    # Train-Test Split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    # Model Selection
-    model_choice = st.selectbox("🤖 Choose Regression Model", ["Linear Regression", "Lasso Regression", "Ridge Regression"])
-    
+def train_and_evaluate_model(X_train, y_train, model_choice, alpha=None):
     if model_choice == "Linear Regression":
         model = LinearRegression()
     elif model_choice == "Lasso Regression":
-        alpha = st.slider("🔧 Lasso Alpha", 0.01, 1.0, 0.1)
         model = Lasso(alpha=alpha)
     else:
-        alpha = st.slider("🔧 Ridge Alpha", 0.01, 1.0, 0.1)
         model = Ridge(alpha=alpha)
-    
-    # Train Model
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    
-    # Metrics
-    mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    
-    st.write("### Model Performance")
-    st.metric("📉 Mean Squared Error", f"{mse:.4f}")
-    st.metric("📈 R-squared", f"{r2:.4f}")
-    
-    # Plot Results
-    st.write("### Prediction Visualization")
-    fig, ax = plt.subplots()
-    ax.scatter(y_test, y_pred, alpha=0.5, color='blue')
-    ax.plot(y_test, y_test, color='red', linewidth=2)
-    ax.set_xlabel("Actual Values")
-    ax.set_ylabel("Predicted Values")
-    ax.set_title("Actual vs Predicted Values")
-    st.pyplot(fig)
-    
-    # Real-time Predictions
-    st.write("### Make a Prediction")
+
+    # Feature Scaling (Example using StandardScaler)
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)  # Fit and transform training data
+
+    model.fit(X_train_scaled, y_train)
+
+    # Cross-validation
+    cv_scores = cross_val_score(model, X_train_scaled, y_train, cv=5, scoring='neg_mean_squared_error')  # Use negative MSE for scoring
+    rmse_scores = np.sqrt(-cv_scores)  # Convert back to RMSE
+    mean_rmse = rmse_scores.mean()
+
+    return model, scaler, mean_rmse #Return the scaler
+
+# ... (inside the if target_col and features block)
+
+    X_train, X_test, y_train, X_test_unscaled, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    model, scaler, mean_rmse = train_and_evaluate_model(X_train, y_train, model_choice, alpha)
+
+    X_test_scaled = scaler.transform(X_test_unscaled) #Scale test data
+
+    y_pred = model.predict(X_test_scaled)
+
+    # ... (rest of the code)
+
+    # Real-time Predictions (Scaled Input)
     input_data = []
     for feature in features:
         input_data.append(st.number_input(f"Enter value for {feature}", value=float(df[feature].mean())))
-    
+
     if st.button("🔮 Predict!"):
-        prediction = model.predict([input_data])
+        input_data_scaled = scaler.transform([input_data]) #Scale the input
+        prediction = model.predict(input_data_scaled)
         st.success(f"Predicted Value: {prediction[0]:.4f}")
-    
-    # Pollution Map
-    st.write("### Pollution Heatmap")
-    map_center = [df["latitude"].mean(), df["longitude"].mean()]
+
+# ... (Pollution Map - Example using color scale)
     pollution_map = folium.Map(location=map_center, zoom_start=10)
-    
+
+    # Create a color map
+    from branca.colormap import linear
+    colormap = linear.YlOrRd_09.scale(df[target_col].min(), df[target_col].max())
+
     for _, row in df.iterrows():
         folium.CircleMarker(
-            location=[row["latitude"], row["longitude"]],
-            radius=8,
-            color='red' if row[target_col] > df[target_col].quantile(0.75) else 'orange' if row[target_col] > df[target_col].quantile(0.5) else 'yellow',
-            fill=True,
-            fill_opacity=0.6,
-            popup=f"Pollution Level: {row[target_col]}"
+            # ... (other parameters)
+            color=colormap(row[target_col]),  # Use color map
+            # ...
         ).add_to(pollution_map)
-    
+
     folium_static(pollution_map)
