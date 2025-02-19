@@ -15,8 +15,7 @@ st.set_page_config(page_title="Super Cool Regression App", layout="wide")
 st.title("📊 Super Interactive Regression Prediction App")
 
 # Load dataset from GitHub repository
-data_url = "https://raw.githubusercontent.com/your-repo/your-dataset.csv"
-df = pd.read_csv(data_url)
+df = pd.read_csv("air_pollution_data.csv")
 
 # Convert date columns to datetime
 for col in df.select_dtypes(include=['object']).columns:
