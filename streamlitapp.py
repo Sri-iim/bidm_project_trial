@@ -73,7 +73,7 @@ elif options == "Heatmap":
     st.write("Explore the correlation between different air quality parameters.")
 
     # Correlation heatmap
-    corr = data.corr()
+    corr = data.select_dtypes(include=[np.number]).corr()
     fig, ax = plt.subplots()
     sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
     st.pyplot(fig)
