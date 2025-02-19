@@ -3,202 +3,140 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import folium
-from streamlit_folium import folium_static
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.linear_model import LinearRegression, Lasso, Ridge
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from branca.colormap import linear
-from datetime import datetime, timedelta
-from folium.plugins import HeatMap  # Import HeatMap
+import plotly.express as px
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
-# Streamlit UI
-st.set_page_config(page_title="Advanced Air Pollution App", layout="wide")
-st.title("📊 Advanced Air Pollution Analysis")
+# Load the dataset
+@st.cache
+def load_data():
+    data = pd.read_csv("air_pollution_data.csv")
+    return data
 
-# Load dataset (replace with your actual path)
-try:
-    df = pd.read_csv("air_pollution_data.csv")
-except FileNotFoundError:
-    st.error("Error: 'air_pollution_data.csv' not found.")
-    st.stop()
-except Exception as e:
-    st.error(f"Error loading data: {e}")
-    st.stop()
+data = load_data()
 
-# Data Preprocessing
-for col in df.select_dtypes(include=['object']).columns:
-    try:
-        df[col] = pd.to_datetime(df[col], errors='coerce')
-    except (TypeError, ValueError):
-        pass
+# Sidebar for user input
+st.sidebar.title("Navigation")
+options = st.sidebar.radio("Choose a page:", 
+                           ["Home", "AQI Prediction", "Heatmap", "Visualizations", "Gamified Experience"])
 
-for col in df.select_dtypes(include=['datetime']).columns:
-    df[col + "_year"] = df[col].dt.year
-    df[col + "_month"] = df[col].dt.month
-    df[col + "_day"] = df[col].dt.day
-    df.drop(columns=[col], inplace=True)
+# Home Page
+if options == "Home":
+    st.title("Air Quality Index (AQI) Analysis and Prediction")
+    st.write("Welcome to the Air Quality Index (AQI) Analysis and Prediction app!")
+    st.write("This app allows you to explore air quality data, predict AQI, and visualize various aspects of air pollution.")
+    st.write("Use the sidebar to navigate through different sections.")
 
-for col in df.select_dtypes(include=['object']).columns:
-    try:
-        df[col] = LabelEncoder().fit_transform(df[col])
-    except Exception as e:
-        st.error(f"Encoding Error for column '{col}': {e}")
-        st.stop()
+# AQI Prediction Page
+elif options == "AQI Prediction":
+    st.title("AQI Prediction")
+    st.write("Predict the Air Quality Index (AQI) based on various parameters.")
 
-df.fillna(df.mean(), inplace=True)
+    # Feature selection for prediction
+    features = ['co', 'no', 'no2', 'o3', 'so2', 'pm2.5', 'pm10', 'nh3']
+    X = data[features]
+    y = data['aqi']
 
-# --- Enhanced Features ---
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 1. City-Specific AQI Plotting
-st.subheader("City-Specific AQI Trends")
-if 'City' in df.columns and 'Date' in df.columns and target_col in df.columns:  # Check if columns exist
-    city_options = df['City'].unique()
-    selected_cities = st.multiselect("Select Cities", city_options, default=city_options[:min(3, len(city_options))])
+    # Train a Random Forest model
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
 
-    if selected_cities:
-        fig, ax = plt.subplots(figsize=(10, 6))
-        for city in selected_cities:
-            city_data = df[df['City'] == city].sort_values('Date')
-            if not city_data.empty:
-                ax.plot(city_data['Date'], city_data[target_col], label=city)
-            else:
-                st.warning(f"No data found for city: {city}")
+    # User input for prediction
+    st.sidebar.header("Input Parameters")
+    co = st.sidebar.slider("CO", float(data['co'].min()), float(data['co'].max()), float(data['co'].mean()))
+    no = st.sidebar.slider("NO", float(data['no'].min()), float(data['no'].max()), float(data['no'].mean()))
+    no2 = st.sidebar.slider("NO2", float(data['no2'].min()), float(data['no2'].max()), float(data['no2'].mean()))
+    o3 = st.sidebar.slider("O3", float(data['o3'].min()), float(data['o3'].max()), float(data['o3'].mean()))
+    so2 = st.sidebar.slider("SO2", float(data['so2'].min()), float(data['so2'].max()), float(data['so2'].mean()))
+    pm2_5 = st.sidebar.slider("PM2.5", float(data['pm2.5'].min()), float(data['pm2.5'].max()), float(data['pm2.5'].mean()))
+    pm10 = st.sidebar.slider("PM10", float(data['pm10'].min()), float(data['pm10'].max()), float(data['pm10'].mean()))
+    nh3 = st.sidebar.slider("NH3", float(data['nh3'].min()), float(data['nh3'].max()), float(data['nh3'].mean()))
 
-        ax.set_xlabel("Date")
-        ax.set_ylabel(target_col)
-        ax.set_title("AQI Trends by City")
-        ax.legend()
-        st.pyplot(fig)
-    else:
-        st.info("Select cities to see their AQI trends.")
-else:
-    st.warning("City or Date or Target column is missing, cannot plot city-specific trends.")
+    # Predict AQI
+    input_data = np.array([co, no, no2, o3, so2, pm2_5, pm10, nh3]).reshape(1, -1)
+    prediction = model.predict(input_data)
 
+    st.write(f"Predicted AQI: **{prediction[0]:.2f}**")
 
-
-# 2. Future Trend Prediction (Simplified - Replace with proper time series model)
-st.subheader("Future Trend Prediction (Simplified - Use a proper time series model)")
-future_days = st.number_input("Enter number of days to predict", min_value=1, value=7)
-
-if 'Date' in df.columns and target_col in df.columns: #Check if columns exist
-    if st.button("Predict Future Trends"):
-        try:
-            last_date = df['Date'].max()
-            future_dates = [last_date + timedelta(days=i) for i in range(1, future_days + 1)]
-            future_df = pd.DataFrame({'Date': future_dates})
-
-            combined_df = pd.concat([df[['Date', target_col]], future_df], ignore_index=True)
-            combined_df['Date_ordinal'] = combined_df['Date'].apply(datetime.toordinal)
-
-            X = df['Date'].apply(datetime.toordinal).values.reshape(-1, 1)
-            y = df[target_col]
-
-            model = LinearRegression()  # Replace with a proper time series model
-            model.fit(X, y)
-
-            future_predictions = model.predict(combined_df['Date_ordinal'].values.reshape(-1, 1))[-future_days:]
-
-            fig, ax = plt.subplots(figsize=(10, 6))
-            ax.plot(df['Date'], df[target_col], label="Historical Data")
-            ax.plot(future_dates, future_predictions, label="Future Predictions", linestyle="--")
-            ax.set_xlabel("Date")
-            ax.set_ylabel(target_col)
-            ax.set_title(f"AQI Trend Prediction (Next {future_days} Days)")
-            ax.legend()
-            st.pyplot(fig)
-        except TypeError:
-            st.error("Please ensure you have a 'Date' column and it's correctly formatted as datetime.")
-        except Exception as e:
-            st.error(f"An error occurred during prediction: {e}")
-else:
-    st.warning("Date or Target column is missing, cannot perform future trend prediction.")
-
-
-
-# --- Model Training and Evaluation ---
-# Feature Selection
-target_col = st.selectbox("🎯 Select Target Variable", df.columns)
-available_features = [col for col in df.columns if col != target_col]
-features = st.multiselect("🔢 Select Feature Variables", available_features, default=available_features[:min(3, len(available_features))])
-
-if target_col and features:
-    X = df[features]
-    y = df[target_col]
-
-    X_train, X_test, y_train, X_test_unscaled, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    model_choice = st.selectbox("🤖 Choose Regression Model", ["Linear Regression", "Lasso Regression", "Ridge Regression"])
-
-    alpha = None
-    if model_choice != "Linear Regression":
-        alpha = st.slider("🔧 Alpha", 0.01, 1.0, 0.1)
-
-    def train_and_evaluate_model(X_train, y_train, model_choice, alpha=None):
-        # ... (same as before)
-
-    model, scaler, mean_rmse = train_and_evaluate_model(X_train, y_train, model_choice, alpha)
-    X_test_scaled = scaler.transform(X_test_unscaled)
-    y_pred = model.predict(X_test_scaled)
-
+    # Model evaluation
+    y_pred = model.predict(X_test)
     mse = mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
-    mae = mean_absolute_error(y_test, y_pred)
+    st.write(f"Model Mean Squared Error: **{mse:.2f}**")
 
-    st.write("### Model Performance")
-    st.metric("📉 Mean Squared Error", f"{mse:.4f}")
-    st.metric("📈 R-squared", f"{r2:.4f}")
-    st.metric("📏 Mean Absolute Error", f"{mae:.4f}")
-    st.metric("🔄 Cross-Validated RMSE", f"{mean_rmse:.4f}")
+# Heatmap Page
+elif options == "Heatmap":
+    st.title("Heatmap of Air Quality Parameters")
+    st.write("Explore the correlation between different air quality parameters.")
 
-    # Plot Results
-    # ... (same as before)
+    # Correlation heatmap
+    corr = data.corr()
+    fig, ax = plt.subplots()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+    st.pyplot(fig)
 
-    # Real-time Predictions
-    st.write("### Make a Prediction")
-    input_data = []
-    for feature in features:
-        default_value = float(df[feature].mean()) if pd.api.types.is_numeric_dtype(df[feature]) else 0
-        input_data.append(st.number_input(f"Enter value for {feature}", value=default_value))
+# Visualizations Page
+elif options == "Visualizations":
+    st.title("Visualizations")
+    st.write("Visualize various aspects of air quality data.")
 
-    if st.button("🔮 Predict!"):
-        try:
-            input_data_scaled = scaler.transform([input_data])
-            prediction = model.predict(input_data_scaled)
-            st.success(f"Predicted Value: {prediction[0]:.4f}")
-        except ValueError:
-            st.error("Invalid input values. Please check the data types and ranges.")
-        except Exception as e:
-            st.error(f"An error occurred during prediction: {e}")
+    # AQI Distribution
+    st.subheader("AQI Distribution")
+    fig = px.histogram(data, x='aqi', nbins=50, title="AQI Distribution")
+    st.plotly_chart(fig)
 
+    # AQI vs PM2.5
+    st.subheader("AQI vs PM2.5")
+    fig = px.scatter(data, x='pm2.5', y='aqi', title="AQI vs PM2.5")
+    st.plotly_chart(fig)
 
+    # AQI vs PM10
+    st.subheader("AQI vs PM10")
+    fig = px.scatter(data, x='pm10', y='aqi', title="AQI vs PM10")
+    st.plotly_chart(fig)
 
-    # 3. Enhanced Pollution Map (Heatmap Layer)
-    st.subheader("Enhanced Pollution Heatmap")
+# Gamified Experience Page
+elif options == "Gamified Experience":
+    st.title("Gamified Experience")
+    st.write("Engage in a gamified experience to learn more about air quality.")
 
-    if 'latitude' in df.columns and 'longitude' in df.columns and target_col in df.columns
-    # ... (Previous code)
+    # Quiz on AQI
+    st.subheader("AQI Quiz")
+    st.write("Test your knowledge about AQI and air quality.")
 
-    # 3. Enhanced Pollution Map (Heatmap Layer)
-    st.subheader("Enhanced Pollution Heatmap")
-
-    if 'latitude' in df.columns and 'longitude' in df.columns and target_col in df.columns:
-        try:
-            map_center = [df["latitude"].mean(), df["longitude"].mean()]
-            pollution_map = folium.Map(location=map_center, zoom_start=8)
-
-            # Create heatmap layer
-            heat_data = [[row["latitude"], row["longitude"], row[target_col]] for _, row in df.iterrows()]
-            HeatMap(heat_data, radius=8, blur=5).add_to(pollution_map)
-
-            folium_static(pollution_map)
-
-        except Exception as e:
-            st.error(f"An error occurred while creating the map: {e}")
+    q1 = st.radio("What does AQI stand for?", 
+                  ["Air Quality Index", "Air Quantity Indicator", "Atmospheric Quality Index"])
+    if q1 == "Air Quality Index":
+        st.success("Correct!")
     else:
-        st.warning("Latitude, longitude, or target column is missing. Cannot display the map.")
+        st.error("Incorrect. The correct answer is Air Quality Index.")
 
+    q2 = st.radio("Which pollutant is most harmful to human health?", 
+                  ["CO", "PM2.5", "O3"])
+    if q2 == "PM2.5":
+        st.success("Correct!")
+    else:
+        st.error("Incorrect. The correct answer is PM2.5.")
 
-else:
-    st.warning("Please select a target variable and at least one feature variable.")
+    q3 = st.radio("What is the safe level of AQI?", 
+                  ["0-50", "51-100", "101-150"])
+    if q3 == "0-50":
+        st.success("Correct!")
+    else:
+        st.error("Incorrect. The correct answer is 0-50.")
+
+    # Leaderboard
+    st.subheader("Leaderboard")
+    st.write("Top 5 users with the highest scores:")
+    leaderboard = pd.DataFrame({
+        "User": ["User1", "User2", "User3", "User4", "User5"],
+        "Score": [95, 90, 85, 80, 75]
+    })
+    st.table(leaderboard)
+
+# Run the app
+if __name__ == "__main__":
+    st.write("App is running...")
