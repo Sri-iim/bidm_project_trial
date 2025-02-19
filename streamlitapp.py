@@ -178,3 +178,27 @@ if target_col and features:
     st.subheader("Enhanced Pollution Heatmap")
 
     if 'latitude' in df.columns and 'longitude' in df.columns and target_col in df.columns
+    # ... (Previous code)
+
+    # 3. Enhanced Pollution Map (Heatmap Layer)
+    st.subheader("Enhanced Pollution Heatmap")
+
+    if 'latitude' in df.columns and 'longitude' in df.columns and target_col in df.columns:
+        try:
+            map_center = [df["latitude"].mean(), df["longitude"].mean()]
+            pollution_map = folium.Map(location=map_center, zoom_start=8)
+
+            # Create heatmap layer
+            heat_data = [[row["latitude"], row["longitude"], row[target_col]] for _, row in df.iterrows()]
+            HeatMap(heat_data, radius=8, blur=5).add_to(pollution_map)
+
+            folium_static(pollution_map)
+
+        except Exception as e:
+            st.error(f"An error occurred while creating the map: {e}")
+    else:
+        st.warning("Latitude, longitude, or target column is missing. Cannot display the map.")
+
+
+else:
+    st.warning("Please select a target variable and at least one feature variable.")
