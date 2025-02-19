@@ -8,13 +8,15 @@ from streamlit_folium import folium_static
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Lasso, Ridge
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import LabelEncoder
 
 # Streamlit UI
 st.set_page_config(page_title="Super Cool Regression App", layout="wide")
 st.title("📊 Super Interactive Regression Prediction App")
 
 # Load dataset from GitHub repository
-df = pd.read_csv("air_pollution_data.csv")
+data_url = "https://raw.githubusercontent.com/your-repo/your-dataset.csv"
+df = pd.read_csv(data_url)
 
 # Convert date columns to datetime
 for col in df.select_dtypes(include=['object']).columns:
@@ -29,6 +31,13 @@ for col in df.select_dtypes(include=['datetime']).columns:
     df[col + "_month"] = df[col].dt.month
     df[col + "_day"] = df[col].dt.day
     df.drop(columns=[col], inplace=True)
+
+# Encode categorical columns
+for col in df.select_dtypes(include=['object']).columns:
+    df[col] = LabelEncoder().fit_transform(df[col])
+
+# Fill missing values
+df.fillna(df.mean(), inplace=True)
 
 st.write("### Preview of Dataset")
 st.dataframe(df.head())
