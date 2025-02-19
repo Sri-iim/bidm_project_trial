@@ -22,4 +22,4 @@ st.subheader("Data Information")
 buffer = io.StringIO()
 data.info(buf=buffer)  # Correctly capture the output
 info_str = buffer.getvalue()  # Retrieve the text
-st.text(info_str)  # Display in Streamlit
+st.code(info_str,language="plaintext")  # Display in Streamlit
