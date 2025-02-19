@@ -4,8 +4,8 @@ import pandas as pd
 st.title("Air Pollution Data Analysis")
 
 # Load data from GitHub
-url = "https://github.com/Sri-iim/Group4_BIDM_Project/blob/main/air_pollution_data.csv"
-data = pd.read_csv(url)
+
+data = pd.read_csv("air_pollution_data.csv")
 
 # Display the first few rows
 st.subheader("First Few Rows of Data")
