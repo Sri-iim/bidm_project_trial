@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
 # Load the dataset
-@st.cache
+@st.cache_data
 def load_data():
     data = pd.read_csv("air_pollution_data.csv")
     return data
