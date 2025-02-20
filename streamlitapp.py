@@ -1,142 +1,115 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.express as px
-from sklearn.ensemble import RandomForestRegressor
+import plotly.graph_objects as go
+from fbprophet import Prophet
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import confusion_matrix
 
-# Load the dataset
-@st.cache_data
+# Load your dataset
+@st.cache
 def load_data():
-    data = pd.read_csv("air_pollution_data.csv")
+    # Replace with your dataset loading logic
+    data = pd.read_csv('air_quality_data.csv')
+    # Convert 'date' column to datetime format
+    data['date'] = pd.to_datetime(data['date'])
     return data
 
 data = load_data()
 
-# Sidebar for user input
-st.sidebar.title("Navigation")
-options = st.sidebar.radio("Choose a page:", 
-                           ["Home", "AQI Prediction", "Heatmap", "Visualizations", "Gamified Experience"])
+# Title and Introduction
+st.title("Air Quality Analysis in India")
+st.image("air_quality_image.jpg", use_column_width=True)
+st.video("https://www.youtube.com/embed/your_video_id")
 
-# Home Page
-if options == "Home":
-    st.title("Air Quality Index (AQI) Analysis and Prediction")
-    st.write("Welcome to the Air Quality Index (AQI) Analysis and Prediction app!")
-    st.write("This app allows you to explore air quality data, predict AQI, and visualize various aspects of air pollution.")
-    st.write("Use the sidebar to navigate through different sections.")
+# Display the dataset
+if st.checkbox('Show raw data'):
+    st.write(data)
 
-# AQI Prediction Page
-elif options == "AQI Prediction":
-    st.title("AQI Prediction")
-    st.write("Predict the Air Quality Index (AQI) based on various parameters.")
+# Filters for Interactive Map
+st.sidebar.header("Filters")
+city_filter = st.sidebar.multiselect('Select Cities', data['city'].unique())
+aqi_range = st.sidebar.slider('Select AQI Range', int(data['aqi'].min()), int(data['aqi'].max()), (int(data['aqi'].min()), int(data['aqi'].max())))
 
-    # Feature selection for prediction
-    features = ['co', 'no', 'no2', 'o3', 'so2', 'pm2.5', 'pm10', 'nh3']
-    X = data[features]
-    y = data['aqi']
+# Apply filters
+filtered_data = data[(data['city'].isin(city_filter)) & (data['aqi'].between(aqi_range[0], aqi_range[1]))]
 
-    # Train-test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Interactive India Map with Bubble Plot
+st.header("Interactive India Map with AQI Levels")
+fig = px.scatter_geo(filtered_data, lat='latitude', lon='longitude', size='aqi', hover_name='city', scope='asia', title='AQI Levels in India')
+st.plotly_chart(fig)
 
-    # Train a Random Forest model
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+# Clear filters
+if st.sidebar.button('Clear Filters'):
+    city_filter = []
+    aqi_range = (int(data['aqi'].min()), int(data['aqi'].max()))
 
-    # User input for prediction
-    st.sidebar.header("Input Parameters")
-    co = st.sidebar.slider("CO", float(data['co'].min()), float(data['co'].max()), float(data['co'].mean()))
-    no = st.sidebar.slider("NO", float(data['no'].min()), float(data['no'].max()), float(data['no'].mean()))
-    no2 = st.sidebar.slider("NO2", float(data['no2'].min()), float(data['no2'].max()), float(data['no2'].mean()))
-    o3 = st.sidebar.slider("O3", float(data['o3'].min()), float(data['o3'].max()), float(data['o3'].mean()))
-    so2 = st.sidebar.slider("SO2", float(data['so2'].min()), float(data['so2'].max()), float(data['so2'].mean()))
-    pm2_5 = st.sidebar.slider("PM2.5", float(data['pm2.5'].min()), float(data['pm2.5'].max()), float(data['pm2.5'].mean()))
-    pm10 = st.sidebar.slider("PM10", float(data['pm10'].min()), float(data['pm10'].max()), float(data['pm10'].mean()))
-    nh3 = st.sidebar.slider("NH3", float(data['nh3'].min()), float(data['nh3'].max()), float(data['nh3'].mean()))
+# List View of Records
+st.header("List View of Filtered Data")
+if st.checkbox('Show List View'):
+    st.write(filtered_data)
 
-    # Predict AQI
-    input_data = np.array([co, no, no2, o3, so2, pm2_5, pm10, nh3]).reshape(1, -1)
-    prediction = model.predict(input_data)
+# Bar Graph of Cities vs AQI
+st.header("Bar Graph of Cities vs AQI")
+top_n = st.selectbox('Select Top N Cities', [10, 20, 'All'])
+if top_n == 'All':
+    top_data = data
+else:
+    top_data = data.nlargest(top_n, 'aqi')
 
-    st.write(f"Predicted AQI: **{prediction[0]:.2f}**")
+fig = px.bar(top_data, x='city', y='aqi', title=f'Top {top_n} Cities by AQI')
+st.plotly_chart(fig)
 
-    # Model evaluation
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    st.write(f"Model Mean Squared Error: **{mse:.2f}**")
+# Line Graph of AQI Change per City
+st.header("Line Graph of AQI Change per City")
+selected_city = st.selectbox('Select City', data['city'].unique())
+city_data = data[data['city'] == selected_city]
 
-# Heatmap Page
-elif options == "Heatmap":
-    st.title("Heatmap of Air Quality Parameters")
-    st.write("Explore the correlation between different air quality parameters.")
+fig = px.line(city_data, x='date', y='aqi', title=f'AQI Trend for {selected_city}')
+st.plotly_chart(fig)
 
-    # Correlation heatmap
-    corr = data.select_dtypes(include=[np.number]).corr()
-    fig, ax = plt.subplots()
-    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+# Time Series Prediction
+st.header("Time Series Prediction of AQI")
+if st.checkbox('Show Time Series Prediction'):
+    # Prepare data for Prophet
+    prophet_data = city_data[['date', 'aqi']].rename(columns={'date': 'ds', 'aqi': 'y'})
+
+    # Fit the model
+    model = Prophet()
+    model.fit(prophet_data)
+
+    # Make future predictions
+    future = model.make_future_dataframe(periods=365)
+    forecast = model.predict(future)
+
+    # Plot the forecast
+    fig = model.plot(forecast)
     st.pyplot(fig)
 
-# Visualizations Page
-elif options == "Visualizations":
-    st.title("Visualizations")
-    st.write("Visualize various aspects of air quality data.")
+# Logistic Regression for Classification
+st.header("Logistic Regression for AQI Classification")
+if st.checkbox('Show AQI Classification'):
+    # Define AQI categories
+    bins = [0, 50, 100, 200, 300, 500]
+    labels = ['Good', 'Moderate', 'Poor', 'Very Poor', 'Severe']
+    data['AQI_Category'] = pd.cut(data['aqi'], bins=bins, labels=labels)
 
-    # AQI Distribution
-    st.subheader("AQI Distribution")
-    fig = px.histogram(data, x='aqi', nbins=50, title="AQI Distribution")
+    # Prepare data for logistic regression
+    X = data[['aqi']]
+    y = data['AQI_Category']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Train the model
+    model = LogisticRegression()
+    model.fit(X_train, y_train)
+
+    # Predict and visualize
+    y_pred = model.predict(X_test)
+    st.write(pd.DataFrame({'Actual': y_test, 'Predicted': y_pred}))
+
+    # Confusion matrix
+    cm = confusion_matrix(y_test, y_pred)
+    fig = px.imshow(cm, labels=dict(x="Predicted", y="Actual", color="Count"), x=labels, y=labels)
     st.plotly_chart(fig)
-
-    # AQI vs PM2.5
-    st.subheader("AQI vs PM2.5")
-    fig = px.scatter(data, x='pm2.5', y='aqi', title="AQI vs PM2.5")
-    st.plotly_chart(fig)
-
-    # AQI vs PM10
-    st.subheader("AQI vs PM10")
-    fig = px.scatter(data, x='pm10', y='aqi', title="AQI vs PM10")
-    st.plotly_chart(fig)
-
-# Gamified Experience Page
-elif options == "Gamified Experience":
-    st.title("Gamified Experience")
-    st.write("Engage in a gamified experience to learn more about air quality.")
-
-    # Quiz on AQI
-    st.subheader("AQI Quiz")
-    st.write("Test your knowledge about AQI and air quality.")
-
-    q1 = st.radio("What does AQI stand for?", 
-                  ["Air Quality Index", "Air Quantity Indicator", "Atmospheric Quality Index"])
-    if q1 == "Air Quality Index":
-        st.success("Correct!")
-    else:
-        st.error("Incorrect. The correct answer is Air Quality Index.")
-
-    q2 = st.radio("Which pollutant is most harmful to human health?", 
-                  ["CO", "PM2.5", "O3"])
-    if q2 == "PM2.5":
-        st.success("Correct!")
-    else:
-        st.error("Incorrect. The correct answer is PM2.5.")
-
-    q3 = st.radio("What is the safe level of AQI?", 
-                  ["0-50", "51-100", "101-150"])
-    if q3 == "0-50":
-        st.success("Correct!")
-    else:
-        st.error("Incorrect. The correct answer is 0-50.")
-
-    # Leaderboard
-    st.subheader("Leaderboard")
-    st.write("Top 5 users with the highest scores:")
-    leaderboard = pd.DataFrame({
-        "User": ["User1", "User2", "User3", "User4", "User5"],
-        "Score": [95, 90, 85, 80, 75]
-    })
-    st.table(leaderboard)
-
-# Run the app
-if __name__ == "__main__":
-    st.write("App is running...")
