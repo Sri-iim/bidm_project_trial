@@ -21,8 +21,8 @@ data = load_data()
 
 # Title and Introduction
 st.title("Air Quality Analysis in India")
-//st.image("air_quality_image.jpg", use_column_width=True)
-//st.video("https://www.youtube.com/embed/your_video_id")
+#st.image("air_quality_image.jpg", use_column_width=True)
+#st.video("https://www.youtube.com/embed/your_video_id")
 
 # Display the dataset
 if st.checkbox('Show raw data'):
