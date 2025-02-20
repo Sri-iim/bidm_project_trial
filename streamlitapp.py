@@ -12,7 +12,7 @@ from sklearn.metrics import confusion_matrix
 @st.cache
 def load_data():
     # Replace with your dataset loading logic
-    data = pd.read_csv('air_quality_data.csv')
+    data = pd.read_csv('air_pollution_data.csv')
     # Convert 'date' column to datetime format
     data['date'] = pd.to_datetime(data['date'])
     return data
