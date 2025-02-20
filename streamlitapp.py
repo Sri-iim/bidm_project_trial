@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
 # Load your dataset
-st.cache_resource
+@st.cache_resource
 def load_data():
     # Replace with your dataset loading logic
     data = pd.read_csv('air_pollution_data.csv')
