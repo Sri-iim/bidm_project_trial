@@ -14,7 +14,7 @@ def load_data():
     # Replace with your dataset loading logic
     data = pd.read_csv('air_pollution_data.csv')
     # Convert 'date' column to datetime format
-    data['date'] = pd.to_datetime(data['date'])
+    data['date'] = pd.to_datetime(data['date'], format='mixed', dayfirst=True)
     return data
 
 data = load_data()
