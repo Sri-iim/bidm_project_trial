@@ -285,7 +285,7 @@ aqi_map = folium.Map(location=map_center, zoom_start=5)
 # Add AQI bubbles to the map
 for _, row in df.iterrows():
     folium.CircleMarker(
-        location=[row["latitude"], row["longitude"]],
+        location=[row["Latitude"], row["Longitude"]],
         radius=8,
         color=get_aqi_color(row["AQI"]),
         fill=True,
@@ -316,7 +316,7 @@ aqi_map_filtered = folium.Map(location=map_center, zoom_start=5)
 
 for _, row in filtered_df.iterrows():
     folium.CircleMarker(
-        location=[row["latitude"], row["longitude"]],
+        location=[row["Latitude"], row["Longitude"]],
         radius=8,
         color=get_aqi_color(row["AQI"]),
         fill=True,
@@ -427,7 +427,7 @@ elif graph_type == "Bubble Map":
     st.write("### 🗺️ Bubble Map of Predicted AQI Levels")
 
     # Sample locations (since we don't have actual lat/lon for future)
-    city_lat, city_lon = df[df["City"] == selected_city_forecast][["latitude", "longitude"]].values[0]
+    city_lat, city_lon = df[df["City"] == selected_city_forecast][["Latitude", "Longitude"]].values[0]
 
     map_forecast = folium.Map(location=[city_lat, city_lon], zoom_start=10)
 
