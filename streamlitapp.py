@@ -149,6 +149,7 @@ def categorize_aqi(aqi):
 df["AQI_Category"] = df["AQI"].apply(categorize_aqi)
 
 # Encode categories into numerical labels
+from sklearn.preprocessing import LabelEncoder
 label_encoder = LabelEncoder()
 df["AQI_Label"] = label_encoder.fit_transform(df["AQI_Category"])
 
@@ -413,6 +414,7 @@ st.write("## 🏭 AQI Classification Using Logistic Regression")
 # Prepare Data
 X_classification = df[["AQI"]]  # Feature
 y_classification = df["AQI_Category"]  # Target
+from sklearn.preprocessing import LabelEncoder
 label_encoder = LabelEncoder()
 y_classification_encoded = label_encoder.fit_transform(y_classification)
 
