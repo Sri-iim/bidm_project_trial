@@ -18,11 +18,19 @@ import streamlit as st
 from streamlit_folium import folium_static
 
 # Load AQI dataset (Replace with actual data source)
+from dateutil import parser
 @st.cache_data
 def load_data():
     url = "air_pollution_data.csv"  # Replace with actual dataset
-    df = pd.read_csv(url)df[col] = pd.to_datetime(data['date'], format='mixed', dayfirst=True)
+    df = pd.read_csv(url)
+
+    # Convert 'Date' column handling mixed formats
+    df["Date"] = df["Date"].apply(lambda x: parser.parse(str(x), dayfirst=True) if pd.notnull(x) else x)
+
     return df
+
+df = load_data()
+
 
 df = load_data()
 
