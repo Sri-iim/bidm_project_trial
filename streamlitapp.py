@@ -234,16 +234,35 @@ import seaborn as sns
 st.write("### 📊 Classification Report")
 st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
-# Confusion Matrix
+# import matplotlib.pyplot as plt
+# st.write("### 📌 Confusion Matrix")
+# cm = confusion_matrix(y_test, y_pred)
+# fig_cm, ax = plt.subplots()
+# sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
+# ax.set_xlabel("Predicted Label")
+# ax.set_ylabel("True Label")
+# st.pyplot(fig_cm)
+
+
+import streamlit as st
 import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, classification_report
+
 st.write("### 📌 Confusion Matrix")
 cm = confusion_matrix(y_test, y_pred)
+
+# Ensure all previous plots are cleared
+plt.close("all")
 fig_cm, ax = plt.subplots()
+
+# Plot the confusion matrix
 sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
 ax.set_xlabel("Predicted Label")
 ax.set_ylabel("True Label")
-st.pyplot(fig_cm)
 
+# Display the figure in Streamlit
+st.pyplot(fig_cm)
 
 
 st.write("### 🔍 Predict AQI Category")
