@@ -418,8 +418,17 @@ encoder = OrdinalEncoder()
 y_classification_encoded = encoder.fit_transform(y_classification.values.reshape(-1, 1))
 #y_classification_encoded = encoder.fit_transform(y_classification)
 
+
 # Train-Test Split
-X_train, X_test, y_train, y_test = train_test_split(X_classification, y_classification_encoded, test_size=0.2, random_state=42)
+#X_train, X_test, y_train, y_test = train_test_split(X_classification, y_classification_encoded, test_size=0.2, random_state=42)
+
+from sklearn.model_selection import train_test_split
+
+# Ensure stratified sampling to maintain class balance
+X_train, X_test, y_train, y_test = train_test_split(
+    X_classification, y_classification_encoded, 
+    test_size=0.2, random_state=42, stratify=y_classification_encoded
+)
 
 # Train Model
 log_reg = LogisticRegression()
