@@ -235,6 +235,7 @@ st.write("### 📊 Classification Report")
 st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
 # Confusion Matrix
+import matplotlib.pyplot as plt
 st.write("### 📌 Confusion Matrix")
 cm = confusion_matrix(y_test, y_pred)
 fig_cm, ax = plt.subplots()
