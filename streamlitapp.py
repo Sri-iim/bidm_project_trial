@@ -1,4 +1,6 @@
 import streamlit as st
+from sklearn.preprocessing import LabelEncoder  # Ensure import is at the top
+from sklearn.linear_model import LogisticRegression  # Move this up too
 
 # Set page title
 st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
@@ -411,9 +413,6 @@ st.write("## 🏭 AQI Classification Using Logistic Regression")
 # Prepare Data
 X_classification = df[["AQI"]]  # Feature
 y_classification = df["AQI_Category"]  # Target
-
-# Encode Categories
-from sklearn.preprocessing import LabelEncoder
 label_encoder = LabelEncoder()
 y_classification_encoded = label_encoder.fit_transform(y_classification)
 
