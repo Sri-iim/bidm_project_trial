@@ -10,7 +10,7 @@ st.title("🌍 Air Quality Monitoring & Prediction Dashboard")
 st.image("https://upload.wikimedia.org/wikipedia/commons/6/6f/Smog_over_Beijing.jpg", caption="Air Pollution in Cities")
 
 # Embed a YouTube video
-st.video("https://www.youtube.com/watch?v=DbPniUo8v7A")
+st.video("https://youtu.be/e6rglsLy1Ys?si=b2QpYdTkt5dyNuhs")
 
 import pandas as pd
 import folium
