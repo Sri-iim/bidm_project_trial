@@ -9,3 +9,4 @@ plotly
 numpy
 prophet
 sklearn.preprocessing
+sklearn.linearmodel
