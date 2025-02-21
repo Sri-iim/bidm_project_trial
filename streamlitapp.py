@@ -136,13 +136,13 @@ st.plotly_chart(fig_pred)
 
 # Define AQI categories
 def categorize_aqi(aqi):
-    if aqi <= 50:
+    if aqi = 1:
         return "Good"
-    elif aqi <= 100:
+    elif aqi = 2:
         return "Moderate"
-    elif aqi <= 200:
+    elif aqi = 3:
         return "Poor"
-    elif aqi <= 300:
+    elif aqi = 4:
         return "Very Poor"
     else:
         return "Severe"
