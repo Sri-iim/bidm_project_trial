@@ -1,5 +1,6 @@
 import streamlit as st
 from sklearn.linear_model import LogisticRegression  # Move this up too
+from sklearn.preprocessing import OrdinalEncoder 
 
 # Set page title
 st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
@@ -179,13 +180,13 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
 st.write("### 📊 Classification Report")
-st.text(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
+st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
 # Confusion Matrix
 st.write("### 📌 Confusion Matrix")
 cm = confusion_matrix(y_test, y_pred)
 fig_cm, ax = plt.subplots()
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=label_encoder.classes_, yticklabels=label_encoder.classes_)
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
 ax.set_xlabel("Predicted Label")
 ax.set_ylabel("True Label")
 st.pyplot(fig_cm)
@@ -202,7 +203,7 @@ for pollutant in X_class.columns:
 
 if st.button("Predict AQI Category"):
     pred_category = log_reg.predict([input_features])
-    category_name = label_encoder.inverse_transform(pred_category)[0]
+    category_name = encoder.inverse_transform(pred_category)[0]
     st.success(f"The predicted AQI category is: **{category_name}**")
 
 
@@ -432,7 +433,7 @@ st.metric("📊 Classification Accuracy", f"{accuracy:.2%}")
 
 # Show Classification Report
 st.text("Classification Report:")
-st.text(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
+st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
 
 st.write("## 📊 AQI Classification Distribution")
@@ -451,4 +452,4 @@ st.write("## 🔮 Predict AQI Category")
 aqi_input = st.number_input("Enter AQI Value:", min_value=0, max_value=500, step=1)
 if st.button("Classify AQI"):
     predicted_category = log_reg.predict([[aqi_input]])
-    st.success(f"The AQI Category is: {label_encoder.inverse_transform(predicted_category)[0]}")
+    st.success(f"The AQI Category is: {encoder.inverse_transform(predicted_category)[0]}")
