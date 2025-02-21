@@ -323,7 +323,7 @@ city_list = ["All"] + sorted(df["City"].unique().tolist())
 selected_city = st.selectbox("🏙️ Select City", city_list)
 
 # AQI range filter
-aqi_range = st.slider("🌫️ Select AQI Range", min_value=int(df["AQI"].min()), max_value=int(df["AQI"].max()), value=(50, 200))
+aqi_range = st.slider("🌫️ Select AQI Range", min_value=int(df["AQI"].min()), max_value=int(df["AQI"].max()), value=(1, 5))
 
 # Filter data based on user selection
 filtered_df = df[(df["AQI"] >= aqi_range[0]) & (df["AQI"] <= aqi_range[1])]
