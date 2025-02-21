@@ -1,6 +1,7 @@
 import streamlit as st
 from sklearn.linear_model import LogisticRegression  # Move this up too
 from sklearn.preprocessing import OrdinalEncoder 
+from sklearn.preprocessing import LabelEncoder
 
 # Set page title
 st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
