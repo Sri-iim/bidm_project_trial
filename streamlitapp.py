@@ -1,6 +1,9 @@
 import streamlit as st
 from sklearn.linear_model import LogisticRegression  # Move this up too
 from sklearn.preprocessing import OrdinalEncoder 
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 
 # Set page title
