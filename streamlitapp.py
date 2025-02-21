@@ -415,7 +415,8 @@ X_classification = df[["AQI"]]  # Feature
 y_classification = df["AQI_Category"]  # Target
 
 encoder = OrdinalEncoder()
-y_classification_encoded = encoder.fit_transform(y_classification)
+y_classification_encoded = encoder.fit_transform(y_classification.values.reshape(-1, 1))
+#y_classification_encoded = encoder.fit_transform(y_classification)
 
 # Train-Test Split
 X_train, X_test, y_train, y_test = train_test_split(X_classification, y_classification_encoded, test_size=0.2, random_state=42)
