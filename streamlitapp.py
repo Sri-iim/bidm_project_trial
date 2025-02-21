@@ -133,6 +133,7 @@ fig_pred = px.line(forecast, x="ds", y="yhat", title=f"Predicted AQI in {city_pr
 st.plotly_chart(fig_pred)
 
 
+
 # Define AQI categories
 def categorize_aqi(aqi):
     if aqi <= 50:
@@ -152,7 +153,7 @@ df["AQI_Category"] = df["AQI"].apply(categorize_aqi)
 # Encode categories into numerical labels
 from sklearn.preprocessing import LabelEncoder
 encoder = LabelEncoder()
-df["AQI_Label"] = encoder.fit_transform(df[["AQI_Category"]])
+df["AQI_Label"] = encoder.fit_transform(df["AQI_Category"])  # ✅ Use 1D array
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -162,7 +163,7 @@ st.write("### 🏷️ AQI Classification using Logistic Regression")
 
 # Select features and target
 X_class = df[["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"]]  # Example pollutants
-y_class = df["AQI_Label"]
+y_class = df["AQI_Label"].values.ravel()  # ✅ Convert to 1D array
 
 # Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X_class, y_class, test_size=0.2, random_state=42)
@@ -177,6 +178,52 @@ y_pred = log_reg.predict(X_test)
 # Display accuracy
 accuracy = accuracy_score(y_test, y_pred)
 st.metric("Model Accuracy", f"{accuracy:.2%}")
+
+
+# # Define AQI categories
+# def categorize_aqi(aqi):
+#     if aqi <= 50:
+#         return "Good"
+#     elif aqi <= 100:
+#         return "Moderate"
+#     elif aqi <= 200:
+#         return "Poor"
+#     elif aqi <= 300:
+#         return "Very Poor"
+#     else:
+#         return "Severe"
+
+# # Apply categorization
+# df["AQI_Category"] = df["AQI"].apply(categorize_aqi)
+
+# # Encode categories into numerical labels
+# from sklearn.preprocessing import LabelEncoder
+# encoder = LabelEncoder()
+# df["AQI_Label"] = encoder.fit_transform(df[["AQI_Category"]])
+
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import accuracy_score, classification_report
+
+# st.write("### 🏷️ AQI Classification using Logistic Regression")
+
+# # Select features and target
+# X_class = df[["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"]]  # Example pollutants
+# y_class = df["AQI_Label"]
+
+# # Train-test split
+# X_train, X_test, y_train, y_test = train_test_split(X_class, y_class, test_size=0.2, random_state=42)
+
+# # Train model
+# log_reg = LogisticRegression()
+# log_reg.fit(X_train, y_train)
+
+# # Predictions
+# y_pred = log_reg.predict(X_test)
+
+# # Display accuracy
+# accuracy = accuracy_score(y_test, y_pred)
+# st.metric("Model Accuracy", f"{accuracy:.2%}")
 
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
