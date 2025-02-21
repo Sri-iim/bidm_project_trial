@@ -1,5 +1,4 @@
 import streamlit as st
-from sklearn.preprocessing import LabelEncoder  # Ensure import is at the top
 from sklearn.linear_model import LogisticRegression  # Move this up too
 
 # Set page title
@@ -415,7 +414,6 @@ X_classification = df[["AQI"]]  # Feature
 y_classification = df["AQI_Category"]  # Target
 
 encoder = OrdinalEncoder()
-label_encoder = LabelEncoder()
 y_classification_encoded = encoder.fit_transform(y_classification)
 
 # Train-Test Split
