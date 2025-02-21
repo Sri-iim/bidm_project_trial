@@ -8,5 +8,4 @@ pandas
 plotly
 numpy
 prophet
-sklearn.preprocessing
 sklearn.linear_model
