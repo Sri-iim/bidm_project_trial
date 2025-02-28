@@ -13,7 +13,11 @@ st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
 st.title("🌍 Air Quality Monitoring & Prediction Dashboard")
 
 # Display an image
-st.image("pollution.jpeg")
+
+image = Image.open("pollution.jpeg")
+image = image.resize((300, 300))  # Resi
+st.image(image)
+
 
 # Embed a YouTube video
 st.video("https://youtu.be/e6rglsLy1Ys?si=b2QpYdTkt5dyNuhs")
