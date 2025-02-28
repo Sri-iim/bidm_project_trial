@@ -15,7 +15,7 @@ st.title("🌍 Air Quality Monitoring & Prediction Dashboard")
 # Display an image
 
 image = Image.open("pollution.jpeg")
-image = image.resize((300, 300))  # Resi
+image = image.resize((200, 300))  # Resi
 st.image(image)
 
 
