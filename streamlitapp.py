@@ -57,10 +57,33 @@ st.markdown(
             color: white;
             font-size: 24px;
             font-weight: bold;
+            position: relative;
         }
         .banner img {
-            max-width: 100%;
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
             border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .banner-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .subtext {
+            text-align: center;
+            font-size: 18px;
+            color: #ddd;
             margin-top: 10px;
         }
     </style>
@@ -68,15 +91,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Banner Container ---
-with st.container():
-    st.markdown('<div class="banner">🌍 Air Quality Monitoring & Prediction Dashboard</div>', unsafe_allow_html=True)
-    st.image("pollution.jpeg", caption="Air Quality Monitoring", use_column_width=True)
-    st.markdown(
-        '<p style="text-align:center; font-size:18px; color:#333;">'
-        'This dashboard provides insights into air quality data, including visualization, prediction, and classification.</p>',
-        unsafe_allow_html=True
-    )
+# --- Banner with Image ---
+st.markdown(
+    """
+    <div class="banner">
+        <img src="pollution.jpeg" alt="Air Quality Monitoring">
+        <div class="banner-text">🌍 Air Quality Monitoring & Prediction Dashboard</div>
+    </div>
+    <p class="subtext">
+        This dashboard provides insights into air quality data, including visualization, prediction, and classification.
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # --- Load Data ---
