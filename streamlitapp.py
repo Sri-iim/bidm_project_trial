@@ -68,20 +68,53 @@ if st.sidebar.button("Clear Filters"):
     filtered_df = df
 
 # --- Interactive Map ---
+
+# st.markdown("<p class='big-font'>🗺️ Air Quality Index (AQI) - India Map</p>", unsafe_allow_html=True)
+# m = folium.Map(location=[20.5937, 78.9629], zoom_start=5)
+
+# for _, row in filtered_df.iterrows():
+#     folium.CircleMarker(
+#         location=[row["Latitude"], row["Longitude"]],
+#         radius=8,
+#         color="red" if row["AQI"] > 300 else "orange" if row["AQI"] > 200 else "yellow",
+#         fill=True,
+#         fill_opacity=0.7,
+#         popup=f"{row['City']} - AQI: {row['AQI']}"
+#     ).add_to(m)
+
+# folium_static(m)
+
+import folium
+from streamlit_folium import folium_static
+
 st.markdown("<p class='big-font'>🗺️ Air Quality Index (AQI) - India Map</p>", unsafe_allow_html=True)
 m = folium.Map(location=[20.5937, 78.9629], zoom_start=5)
 
+# Define AQI color and opacity mappings
+aqi_colors = {
+    1: ("#00FF00", 0.4),  # Green (Good) - Light
+    2: ("#ADFF2F", 0.5),  # Yellow-Green (Moderate)
+    3: ("#FFD700", 0.6),  # Gold (Unhealthy for Sensitive Groups)
+    4: ("#FF8C00", 0.8),  # Orange (Unhealthy)
+    5: ("#8B0000", 0.9)   # Dark Red (Hazardous) - Dark
+}
+
 for _, row in filtered_df.iterrows():
+    aqi = row["AQI"]
+    color, opacity = aqi_colors.get(aqi, ("#808080", 0.3))  # Default to gray if AQI is missing
+
     folium.CircleMarker(
         location=[row["Latitude"], row["Longitude"]],
         radius=8,
-        color="red" if row["AQI"] > 300 else "orange" if row["AQI"] > 200 else "yellow",
+        color=color,
         fill=True,
-        fill_opacity=0.7,
-        popup=f"{row['City']} - AQI: {row['AQI']}"
+        fill_color=color,
+        fill_opacity=opacity,  # Adjust opacity based on AQI level
+        popup=f"{row['City']} - AQI: {aqi}"
     ).add_to(m)
 
 folium_static(m)
+
 
 # --- List View ---
 st.markdown("<p class='big-font'>📋 List of AQI Records</p>", unsafe_allow_html=True)
