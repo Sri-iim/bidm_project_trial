@@ -195,7 +195,7 @@ for _, row in filtered_df.iterrows():
         popup=f"{row['City']} - AQI: {aqi}"
     ).add_to(m)
 
-st_folium(m)
+folium_static(m)
 
 
 # --- List View ---
