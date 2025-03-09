@@ -114,33 +114,44 @@ with st.container():
 filtered_df = df[(df["City"].isin(cities)) & (df["AQI"].between(aqi_range[0], aqi_range[1]))]
 
 
-st.markdown("<p class='big-font'>🗺️ Air Quality Index (AQI) - India Map</p>", unsafe_allow_html=True)
-m = folium.Map(location=[20.5937, 78.9629], zoom_start=5)
-
-# Define AQI color and opacity mappings
+# --- Define AQI Color Mapping ---
 aqi_colors = {
-    1: ("#00FF00", 0.4),  # Green (Good) - Light
-    2: ("#ADFF2F", 0.5),  # Yellow-Green (Moderate)
-    3: ("#FFD700", 0.6),  # Gold (Unhealthy for Sensitive Groups)
-    4: ("#FF8C00", 0.8),  # Orange (Unhealthy)
-    5: ("#8B0000", 0.9)   # Dark Red (Hazardous) - Dark
+    1: "#00FF00",  # Green (Good)
+    2: "#ADFF2F",  # Yellow-Green (Moderate)
+    3: "#FFD700",  # Gold (Unhealthy for Sensitive Groups)
+    4: "#FF8C00",  # Orange (Unhealthy)
+    5: "#8B0000"   # Dark Red (Hazardous)
 }
 
-for _, row in filtered_df.iterrows():
-    aqi = row["AQI"]
-    color, opacity = aqi_colors.get(aqi, ("#808080", 0.3))  # Default to gray if AQI is missing
+# Function to get AQI color and dynamic size
+def get_aqi_style(aqi):
+    color = aqi_colors.get(aqi, "#808080")  # Default to Gray if AQI is missing
+    size = 5 + (aqi * 3)  # Base size 5, increases with AQI level
+    return color, size
 
+# --- Create a Single Interactive Map ---
+st.markdown("<p class='big-font'>🌍 Interactive India AQI Map</p>", unsafe_allow_html=True)
+
+# Initialize the Folium map
+map_center = [20.5937, 78.9629]  # Center on India
+aqi_map = folium.Map(location=map_center, zoom_start=5)
+
+# Add markers for each city with AQI data
+for _, row in filtered_df.iterrows():
+    color, size = get_aqi_style(row["AQI"])
+    
     folium.CircleMarker(
         location=[row["Latitude"], row["Longitude"]],
-        radius=8,
+        radius=size,  # Adjust size dynamically
         color=color,
         fill=True,
         fill_color=color,
-        fill_opacity=opacity,  # Adjust opacity based on AQI level
-        popup=f"{row['City']} - AQI: {aqi}"
-    ).add_to(m)
+        fill_opacity=0.8,  # Keep a constant opacity
+        popup=f"{row['City']} - AQI: {row['AQI']}"
+    ).add_to(aqi_map)
 
-st_folium(m)
+# Display the combined AQI map in Streamlit
+st_folium(aqi_map, key="aqi_map")
 
 
 # --- List View ---
@@ -315,30 +326,6 @@ if st.button("Predict AQI Category"):
 
 
 
-# --- Interactive India AQI Map (Filtered) ---
-st.markdown("<p class='big-font'>🌍 Interactive India AQI Map</p>", unsafe_allow_html=True)
-
-def get_aqi_color(aqi):
-    if aqi <= 50: return "green"
-    elif aqi <= 100: return "yellow"
-    elif aqi <= 200: return "orange"
-    elif aqi <= 300: return "red"
-    else: return "purple"
-
-map_center = [20.5937, 78.9629]
-aqi_map = folium.Map(location=map_center, zoom_start=5)
-
-for _, row in filtered_df.iterrows():
-    folium.CircleMarker(
-        location=[row["Latitude"], row["Longitude"]],
-        radius=8,
-        color=get_aqi_color(row["AQI"]),
-        fill=True,
-        fill_opacity=0.6,
-        popup=f"{row['City']}: AQI {row['AQI']}"
-    ).add_to(aqi_map)
-
-st_folium(aqi_map)
 
 # --- Filter AQI Data Section ---
 st.markdown("<p class='big-font'>🔍 Filter AQI Data</p>", unsafe_allow_html=True)
