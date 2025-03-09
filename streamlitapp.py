@@ -134,12 +134,11 @@ def get_aqi_color(aqi):
     }
     return aqi_colors.get(aqi, "gray")  # Default to gray if AQI is missing
 
-
-# Function to get AQI color and dynamic size
+# Function to get AQI color and dynamic opacity
 def get_aqi_style(aqi):
-    color = aqi_colors.get(aqi, "#808080")  # Default to Gray if AQI is missing
-    size = 5 + (aqi * 3)  # Base size 5, increases with AQI level
-    return color, size
+    color = aqi_colors.get(aqi, "#808080")  # Default to gray if AQI is missing
+    opacity = 0.3 + (aqi * 0.15)  # Base opacity 0.3, increases with AQI level
+    return color, min(opacity, 1.0)  # Cap opacity at 1.0
 
 # --- Create a Single Interactive Map ---
 st.markdown("<p class='big-font'>🌍 Interactive India AQI Map</p>", unsafe_allow_html=True)
@@ -150,20 +149,21 @@ aqi_map = folium.Map(location=map_center, zoom_start=5)
 
 # Add markers for each city with AQI data
 for _, row in filtered_df.iterrows():
-    color, size = get_aqi_style(row["AQI"])
+    color, opacity = get_aqi_style(row["AQI"])
     
     folium.CircleMarker(
         location=[row["Latitude"], row["Longitude"]],
-        radius=size,  # Adjust size dynamically
+        radius=8,  # Fixed size
         color=color,
         fill=True,
         fill_color=color,
-        fill_opacity=0.8,  # Keep a constant opacity
+        fill_opacity=opacity,  # Adjust opacity dynamically
         popup=f"{row['City']} - AQI: {row['AQI']}"
     ).add_to(aqi_map)
 
 # Display the combined AQI map in Streamlit
 st_folium(aqi_map, key="unique_aqi_map")
+
 
 
 # --- List View ---
