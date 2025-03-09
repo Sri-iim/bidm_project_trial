@@ -16,13 +16,6 @@ import base64
 # --- Page Configuration ---
 st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
 
-
-# # --- Title and Introduction ---
-# st.title("🌍 Air Quality Monitoring & Prediction Dashboard")
-# st.image("pollution.jpeg", caption="Air Quality Monitoring", use_container_width=True)
-# st.markdown("This dashboard provides insights into air quality data, including visualization, prediction, and classification.")
-
-
 # --- Function to Convert Image to Base64 ---
 def get_base64_of_image(image_path):
     with open(image_path, "rb") as img_file:
@@ -99,20 +92,6 @@ def load_data():
 
 df = load_data()
 
-# # --- Sidebar Filters ---
-# st.sidebar.header("Filter Data")
-# cities = st.sidebar.multiselect("Select Cities", df["City"].unique(), default=df["City"].unique())
-# aqi_range = st.sidebar.slider("Select AQI Range", min_value=int(df["AQI"].min()), max_value=int(df["AQI"].max()), value=(int(df["AQI"].min()), int(df["AQI"].max())))
-
-# filtered_df = df[(df["City"].isin(cities)) & (df["AQI"].between(aqi_range[0], aqi_range[1]))]
-
-# if st.sidebar.button("Clear Filters"):
-#     cities = df["City"].unique()
-#     aqi_range = (df["AQI"].min(), df["AQI"].max())
-#     filtered_df = df
-
-# st.markdown("<p class='big-font' style='text-align:center;'>🔍 Filter Data</p>", unsafe_allow_html=True)
-
 # Creating a top bar container for filters
 with st.container():
     col1, col2, col3 = st.columns([3, 3, 1])  # Adjust column width as needed
@@ -134,23 +113,6 @@ with st.container():
 # Apply filters
 filtered_df = df[(df["City"].isin(cities)) & (df["AQI"].between(aqi_range[0], aqi_range[1]))]
 
-
-# --- Interactive Map ---
-
-# st.markdown("<p class='big-font'>🗺️ Air Quality Index (AQI) - India Map</p>", unsafe_allow_html=True)
-# m = folium.Map(location=[20.5937, 78.9629], zoom_start=5)
-
-# for _, row in filtered_df.iterrows():
-#     folium.CircleMarker(
-#         location=[row["Latitude"], row["Longitude"]],
-#         radius=8,
-#         color="red" if row["AQI"] > 300 else "orange" if row["AQI"] > 200 else "yellow",
-#         fill=True,
-#         fill_opacity=0.7,
-#         popup=f"{row['City']} - AQI: {row['AQI']}"
-#     ).add_to(m)
-
-# folium_static(m)
 
 st.markdown("<p class='big-font'>🗺️ Air Quality Index (AQI) - India Map</p>", unsafe_allow_html=True)
 m = folium.Map(location=[20.5937, 78.9629], zoom_start=5)
@@ -200,9 +162,6 @@ st.plotly_chart(fig_bar)
 st.markdown("<p class='big-font'>📈 AQI Trend Over Time</p>", unsafe_allow_html=True)
 city_selected = st.selectbox("Select City for Trend Analysis", df["City"].unique())
 city_df = df[df["City"] == city_selected]
-# fig_line = px.line(city_df, x="Date", y="AQI", title=f"AQI Trend in {city_selected}")
-# st.plotly_chart(fig_line)
-
 fig_area = px.area(city_df, x="Date", y="AQI", title=f"AQI Trend in {city_selected}", color_discrete_sequence=["#FF5733"])
 st.plotly_chart(fig_area)
 
@@ -270,51 +229,6 @@ accuracy = accuracy_score(y_test, y_pred)
 st.metric("Model Accuracy", f"{accuracy:.2%}")
 
 
-# # Define AQI categories
-# def categorize_aqi(aqi):
-#     if aqi <= 50:
-#         return "Good"
-#     elif aqi <= 100:
-#         return "Moderate"
-#     elif aqi <= 200:
-#         return "Poor"
-#     elif aqi <= 300:
-#         return "Very Poor"
-#     else:
-#         return "Severe"
-
-# # Apply categorization
-# df["AQI_Category"] = df["AQI"].apply(categorize_aqi)
-
-# # Encode categories into numerical labels
-# from sklearn.preprocessing import LabelEncoder
-# encoder = LabelEncoder()
-# df["AQI_Label"] = encoder.fit_transform(df[["AQI_Category"]])
-
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.model_selection import train_test_split
-# from sklearn.metrics import accuracy_score, classification_report
-
-# st.write("### 🏷️ AQI Classification using Logistic Regression")
-
-# # Select features and target
-# X_class = df[["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"]]  # Example pollutants
-# y_class = df["AQI_Label"]
-
-# # Train-test split
-# X_train, X_test, y_train, y_test = train_test_split(X_class, y_class, test_size=0.2, random_state=42)
-
-# # Train model
-# log_reg = LogisticRegression()
-# log_reg.fit(X_train, y_train)
-
-# # Predictions
-# y_pred = log_reg.predict(X_test)
-
-# # Display accuracy
-# accuracy = accuracy_score(y_test, y_pred)
-# st.metric("Model Accuracy", f"{accuracy:.2%}")
-
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
@@ -337,37 +251,6 @@ df_report.index = df_report.index.str.replace("_", " ").str.title()
 st.dataframe(
     df_report.style.format(precision=2).background_gradient(cmap="Blues").set_properties(**{"font-size": "14px"})
 )
-# st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
-
-# import matplotlib.pyplot as plt
-# st.write("### 📌 Confusion Matrix")
-# cm = confusion_matrix(y_test, y_pred)
-# fig_cm, ax = plt.subplots()
-# sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
-# ax.set_xlabel("Predicted Label")
-# ax.set_ylabel("True Label")
-# st.pyplot(fig_cm)
-
-
-# import streamlit as st
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# from sklearn.metrics import confusion_matrix, classification_report
-
-# st.write("### 📌 Confusion Matrix")
-# cm = confusion_matrix(y_test, y_pred)
-
-# # Ensure all previous plots are cleared
-# plt.close("all")
-# fig_cm, ax = plt.subplots()
-
-# # Plot the confusion matrix
-# sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
-# ax.set_xlabel("Predicted Label")
-# ax.set_ylabel("True Label")
-
-# # Display the figure in Streamlit
-# st.pyplot(fig_cm)
 
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -480,21 +363,6 @@ for _, row in filtered_df_map.iterrows():
     ).add_to(aqi_map_filtered)
 
 st_folium(aqi_map_filtered)
-
-# # --- AQI Levels Across Cities Bar Chart ---
-# st.markdown("<p class='big-font'>📊 AQI Levels Across Cities</p>", unsafe_allow_html=True)
-# top_n = st.selectbox("🔢 Select Number of Top Cities", [10, 20, 30, "All"], index=0)
-# df_sorted = df.sort_values(by="AQI", ascending=False)
-# if top_n != "All":
-#     df_sorted = df_sorted.head(int(top_n))
-
-# fig, ax = plt.subplots(figsize=(12, 6))
-# sns.barplot(x=df_sorted["City"], y=df_sorted["AQI"], palette="coolwarm", ax=ax)
-# ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
-# ax.set_xlabel("City")
-# ax.set_ylabel("AQI Level")
-# ax.set_title(f"Top {top_n} Cities with Highest AQI")
-# st.pyplot(fig)
 
 # --- AQI Trends Over Time Line Chart ---
 st.markdown("<p class='big-font'>📈 AQI Trends Over Time</p>", unsafe_allow_html=True)
