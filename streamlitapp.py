@@ -11,6 +11,7 @@ from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
 import seaborn as sns
 from dateutil import parser
+import base64
 
 # --- Page Configuration ---
 st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
