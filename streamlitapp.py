@@ -158,47 +158,148 @@ st.pyplot(fig_forecast)
 fig_pred = px.line(forecast, x="ds", y="yhat", title=f"Predicted AQI in {city_pred}", labels={"ds": "Date", "yhat": "Predicted AQI"})
 st.plotly_chart(fig_pred)
 
-# --- AQI Classification ---
+# Define AQI categories
 def categorize_aqi(aqi):
-    if aqi <= 50: return "Good"
-    elif aqi <= 100: return "Moderate"
-    elif aqi <= 200: return "Poor"
-    elif aqi <= 300: return "Very Poor"
-    else: return "Severe"
+    if aqi == 1:
+        return "Good"
+    elif aqi == 2:
+        return "Moderate"
+    elif aqi == 3:
+        return "Poor"
+    elif aqi == 4:
+        return "Very Poor"
+    else:
+        return "Severe"
 
+# Apply categorization
 df["AQI_Category"] = df["AQI"].apply(categorize_aqi)
-encoder = LabelEncoder()
-df["AQI_Label"] = encoder.fit_transform(df["AQI_Category"])
 
-st.markdown("<p class='big-font'>🏷️ AQI Classification using Logistic Regression</p>", unsafe_allow_html=True)
-X_class = df[["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"]]
-y_class = df["AQI_Label"]
+# Encode categories into numerical labels
+from sklearn.preprocessing import LabelEncoder
+encoder = LabelEncoder()
+df["AQI_Label"] = encoder.fit_transform(df["AQI_Category"])  # ✅ Use 1D array
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+
+st.write("### 🏷️ AQI Classification using Logistic Regression")
+
+# Select features and target
+X_class = df[["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"]]  # Example pollutants
+y_class = df["AQI_Label"].values.ravel()  # ✅ Convert to 1D array
+
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X_class, y_class, test_size=0.2, random_state=42)
-log_reg = LogisticRegression(max_iter=1000)
+
+# Train model
+log_reg = LogisticRegression()
 log_reg.fit(X_train, y_train)
+
+# Predictions
 y_pred = log_reg.predict(X_test)
+
+# Display accuracy
 accuracy = accuracy_score(y_test, y_pred)
 st.metric("Model Accuracy", f"{accuracy:.2%}")
 
-st.markdown("<p class='big-font'>📊 Classification Report</p>", unsafe_allow_html=True)
+
+# # Define AQI categories
+# def categorize_aqi(aqi):
+#     if aqi <= 50:
+#         return "Good"
+#     elif aqi <= 100:
+#         return "Moderate"
+#     elif aqi <= 200:
+#         return "Poor"
+#     elif aqi <= 300:
+#         return "Very Poor"
+#     else:
+#         return "Severe"
+
+# # Apply categorization
+# df["AQI_Category"] = df["AQI"].apply(categorize_aqi)
+
+# # Encode categories into numerical labels
+# from sklearn.preprocessing import LabelEncoder
+# encoder = LabelEncoder()
+# df["AQI_Label"] = encoder.fit_transform(df[["AQI_Category"]])
+
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import accuracy_score, classification_report
+
+# st.write("### 🏷️ AQI Classification using Logistic Regression")
+
+# # Select features and target
+# X_class = df[["PM2.5", "PM10", "NO2", "SO2", "CO", "O3"]]  # Example pollutants
+# y_class = df["AQI_Label"]
+
+# # Train-test split
+# X_train, X_test, y_train, y_test = train_test_split(X_class, y_class, test_size=0.2, random_state=42)
+
+# # Train model
+# log_reg = LogisticRegression()
+# log_reg.fit(X_train, y_train)
+
+# # Predictions
+# y_pred = log_reg.predict(X_test)
+
+# # Display accuracy
+# accuracy = accuracy_score(y_test, y_pred)
+# st.metric("Model Accuracy", f"{accuracy:.2%}")
+
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+
+st.write("### 📊 Classification Report")
 st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
-st.markdown("<p class='big-font'>📌 Confusion Matrix</p>", unsafe_allow_html=True)
+# import matplotlib.pyplot as plt
+# st.write("### 📌 Confusion Matrix")
+# cm = confusion_matrix(y_test, y_pred)
+# fig_cm, ax = plt.subplots()
+# sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
+# ax.set_xlabel("Predicted Label")
+# ax.set_ylabel("True Label")
+# st.pyplot(fig_cm)
+
+
+import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, classification_report
+
+st.write("### 📌 Confusion Matrix")
 cm = confusion_matrix(y_test, y_pred)
+
+# Ensure all previous plots are cleared
+plt.close("all")
 fig_cm, ax = plt.subplots()
+
+# Plot the confusion matrix
 sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
 ax.set_xlabel("Predicted Label")
 ax.set_ylabel("True Label")
+
+# Display the figure in Streamlit
 st.pyplot(fig_cm)
 
-st.markdown("<p class='big-font'>🔍 Predict AQI Category</p>", unsafe_allow_html=True)
-input_features = [st.number_input(f"Enter {pollutant} value", value=float(df[pollutant].mean())) for pollutant in X_class.columns]
 
+st.write("### 🔍 Predict AQI Category")
+
+# User Inputs for pollutants
+input_features = []
+for pollutant in X_class.columns:
+    value = st.number_input(f"Enter {pollutant} value", value=float(df[pollutant].mean()))
+    input_features.append(value)
 
 if st.button("Predict AQI Category"):
     pred_category = log_reg.predict([input_features])
     category_name = encoder.inverse_transform(pred_category)[0]
     st.success(f"The predicted AQI category is: **{category_name}**")
+
+
 
 # --- Interactive India AQI Map (Filtered) ---
 st.markdown("<p class='big-font'>🌍 Interactive India AQI Map</p>", unsafe_allow_html=True)
