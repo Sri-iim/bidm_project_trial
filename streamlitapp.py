@@ -45,8 +45,7 @@ st.markdown(
 # st.image("pollution.jpeg", caption="Air Quality Monitoring", use_container_width=True)
 # st.markdown("This dashboard provides insights into air quality data, including visualization, prediction, and classification.")
 
-# --- Page Configuration ---
-st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
+
 
 # --- Styling ---
 st.markdown(
