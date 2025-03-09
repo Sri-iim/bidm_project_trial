@@ -481,20 +481,20 @@ for _, row in filtered_df_map.iterrows():
 
 st_folium(aqi_map_filtered)
 
-# --- AQI Levels Across Cities Bar Chart ---
-st.markdown("<p class='big-font'>📊 AQI Levels Across Cities</p>", unsafe_allow_html=True)
-top_n = st.selectbox("🔢 Select Number of Top Cities", [10, 20, 30, "All"], index=0)
-df_sorted = df.sort_values(by="AQI", ascending=False)
-if top_n != "All":
-    df_sorted = df_sorted.head(int(top_n))
+# # --- AQI Levels Across Cities Bar Chart ---
+# st.markdown("<p class='big-font'>📊 AQI Levels Across Cities</p>", unsafe_allow_html=True)
+# top_n = st.selectbox("🔢 Select Number of Top Cities", [10, 20, 30, "All"], index=0)
+# df_sorted = df.sort_values(by="AQI", ascending=False)
+# if top_n != "All":
+#     df_sorted = df_sorted.head(int(top_n))
 
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(x=df_sorted["City"], y=df_sorted["AQI"], palette="coolwarm", ax=ax)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
-ax.set_xlabel("City")
-ax.set_ylabel("AQI Level")
-ax.set_title(f"Top {top_n} Cities with Highest AQI")
-st.pyplot(fig)
+# fig, ax = plt.subplots(figsize=(12, 6))
+# sns.barplot(x=df_sorted["City"], y=df_sorted["AQI"], palette="coolwarm", ax=ax)
+# ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+# ax.set_xlabel("City")
+# ax.set_ylabel("AQI Level")
+# ax.set_title(f"Top {top_n} Cities with Highest AQI")
+# st.pyplot(fig)
 
 # --- AQI Trends Over Time Line Chart ---
 st.markdown("<p class='big-font'>📈 AQI Trends Over Time</p>", unsafe_allow_html=True)
