@@ -40,10 +40,44 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- Title and Introduction ---
-st.title("🌍 Air Quality Monitoring & Prediction Dashboard")
-st.image("pollution.jpeg", caption="Air Quality Monitoring", use_container_width=True)
-st.markdown("This dashboard provides insights into air quality data, including visualization, prediction, and classification.")
+# # --- Title and Introduction ---
+# st.title("🌍 Air Quality Monitoring & Prediction Dashboard")
+# st.image("pollution.jpeg", caption="Air Quality Monitoring", use_container_width=True)
+# st.markdown("This dashboard provides insights into air quality data, including visualization, prediction, and classification.")
+
+# --- Banner Styling ---
+st.markdown(
+    """
+    <style>
+        .banner {
+            background-color: #004466;  /* Dark blue background */
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .banner img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- Banner Container ---
+with st.container():
+    st.markdown('<div class="banner">🌍 Air Quality Monitoring & Prediction Dashboard</div>', unsafe_allow_html=True)
+    st.image("pollution.jpeg", caption="Air Quality Monitoring", use_column_width=True)
+    st.markdown(
+        '<p style="text-align:center; font-size:18px; color:#333;">'
+        'This dashboard provides insights into air quality data, including visualization, prediction, and classification.</p>',
+        unsafe_allow_html=True
+    )
+
 
 # --- Load Data ---
 @st.cache_data
@@ -137,7 +171,7 @@ for _, row in filtered_df.iterrows():
         popup=f"{row['City']} - AQI: {aqi}"
     ).add_to(m)
 
-folium_static(m)
+st_folium(m)
 
 
 # --- List View ---
