@@ -123,6 +123,18 @@ aqi_colors = {
     5: "#8B0000"   # Dark Red (Hazardous)
 }
 
+def get_aqi_color(aqi):
+    """Return AQI color based on AQI category (1 to 5)."""
+    aqi_colors = {
+        1: "green",   # Good
+        2: "yellow",  # Moderate
+        3: "orange",  # Unhealthy for sensitive groups
+        4: "red",     # Unhealthy
+        5: "purple"   # Hazardous
+    }
+    return aqi_colors.get(aqi, "gray")  # Default to gray if AQI is missing
+
+
 # Function to get AQI color and dynamic size
 def get_aqi_style(aqi):
     color = aqi_colors.get(aqi, "#808080")  # Default to Gray if AQI is missing
