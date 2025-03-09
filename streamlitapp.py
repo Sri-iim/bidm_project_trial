@@ -55,17 +55,41 @@ def load_data():
 
 df = load_data()
 
-# --- Sidebar Filters ---
-st.sidebar.header("Filter Data")
-cities = st.sidebar.multiselect("Select Cities", df["City"].unique(), default=df["City"].unique())
-aqi_range = st.sidebar.slider("Select AQI Range", min_value=int(df["AQI"].min()), max_value=int(df["AQI"].max()), value=(int(df["AQI"].min()), int(df["AQI"].max())))
+# # --- Sidebar Filters ---
+# st.sidebar.header("Filter Data")
+# cities = st.sidebar.multiselect("Select Cities", df["City"].unique(), default=df["City"].unique())
+# aqi_range = st.sidebar.slider("Select AQI Range", min_value=int(df["AQI"].min()), max_value=int(df["AQI"].max()), value=(int(df["AQI"].min()), int(df["AQI"].max())))
 
+# filtered_df = df[(df["City"].isin(cities)) & (df["AQI"].between(aqi_range[0], aqi_range[1]))]
+
+# if st.sidebar.button("Clear Filters"):
+#     cities = df["City"].unique()
+#     aqi_range = (df["AQI"].min(), df["AQI"].max())
+#     filtered_df = df
+
+# st.markdown("<p class='big-font' style='text-align:center;'>🔍 Filter Data</p>", unsafe_allow_html=True)
+
+# Creating a top bar container for filters
+with st.container():
+    col1, col2, col3 = st.columns([3, 3, 1])  # Adjust column width as needed
+
+    with col1:
+        cities = st.multiselect("Select Cities", df["City"].unique(), default=df["City"].unique())
+
+    with col2:
+        aqi_range = st.slider("Select AQI Range", 
+                              min_value=int(df["AQI"].min()), 
+                              max_value=int(df["AQI"].max()), 
+                              value=(int(df["AQI"].min()), int(df["AQI"].max())))
+
+    with col3:
+        if st.button("Clear Filters"):
+            cities = df["City"].unique()
+            aqi_range = (df["AQI"].min(), df["AQI"].max())
+
+# Apply filters
 filtered_df = df[(df["City"].isin(cities)) & (df["AQI"].between(aqi_range[0], aqi_range[1]))]
 
-if st.sidebar.button("Clear Filters"):
-    cities = df["City"].unique()
-    aqi_range = (df["AQI"].min(), df["AQI"].max())
-    filtered_df = df
 
 # --- Interactive Map ---
 
