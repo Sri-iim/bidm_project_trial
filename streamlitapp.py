@@ -42,7 +42,7 @@ st.markdown(
 
 # --- Title and Introduction ---
 st.title("🌍 Air Quality Monitoring & Prediction Dashboard")
-st.image("pollution.jpeg", caption="Air Quality Monitoring", use_container_width=True)
+st.image("pollution.jpeg", caption="Air Quality Monitoring", use_column_width=True)
 st.markdown("This dashboard provides insights into air quality data, including visualization, prediction, and classification.")
 
 # --- Load Data ---
@@ -102,8 +102,12 @@ st.plotly_chart(fig_bar)
 st.markdown("<p class='big-font'>📈 AQI Trend Over Time</p>", unsafe_allow_html=True)
 city_selected = st.selectbox("Select City for Trend Analysis", df["City"].unique())
 city_df = df[df["City"] == city_selected]
-fig_line = px.line(city_df, x="Date", y="AQI", title=f"AQI Trend in {city_selected}")
-st.plotly_chart(fig_line)
+# fig_line = px.line(city_df, x="Date", y="AQI", title=f"AQI Trend in {city_selected}")
+# st.plotly_chart(fig_line)
+
+fig_area = px.area(city_df, x="Date", y="AQI", title=f"AQI Trend in {city_selected}", color_discrete_sequence=["#FF5733"])
+st.plotly_chart(fig_area)
+
 
 # --- Time Series Prediction ---
 st.markdown("<p class='big-font'>📈 Time Series Prediction of AQI</p>", unsafe_allow_html=True)
