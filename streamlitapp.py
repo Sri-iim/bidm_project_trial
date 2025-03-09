@@ -321,7 +321,7 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
 st.write("### 📊 Classification Report")
-st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
+# st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
 # import matplotlib.pyplot as plt
 # st.write("### 📌 Confusion Matrix")
@@ -333,24 +333,62 @@ st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 # st.pyplot(fig_cm)
 
 
-import streamlit as st
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import confusion_matrix, classification_report
+# import streamlit as st
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# from sklearn.metrics import confusion_matrix, classification_report
 
-st.write("### 📌 Confusion Matrix")
+# st.write("### 📌 Confusion Matrix")
+# cm = confusion_matrix(y_test, y_pred)
+
+# # Ensure all previous plots are cleared
+# plt.close("all")
+# fig_cm, ax = plt.subplots()
+
+# # Plot the confusion matrix
+# sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
+# ax.set_xlabel("Predicted Label")
+# ax.set_ylabel("True Label")
+
+# # Display the figure in Streamlit
+# st.pyplot(fig_cm)
+
+st.write("### 🎨 Enhanced Confusion Matrix")
+
+# Compute confusion matrix
 cm = confusion_matrix(y_test, y_pred)
 
-# Ensure all previous plots are cleared
+# Close previous plots to avoid overlap
 plt.close("all")
-fig_cm, ax = plt.subplots()
 
-# Plot the confusion matrix
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=encoder.classes_, yticklabels=encoder.classes_)
-ax.set_xlabel("Predicted Label")
-ax.set_ylabel("True Label")
+# Create a larger figure with better styling
+fig_cm, ax = plt.subplots(figsize=(6, 4))  # Increased size for better visibility
 
-# Display the figure in Streamlit
+# Customizing the heatmap for a polished look
+sns.heatmap(
+    cm, 
+    annot=True, 
+    fmt="d", 
+    cmap="coolwarm",  # More visually striking colormap
+    linewidths=1,  # Add grid lines for separation
+    linecolor="black", 
+    square=True, 
+    cbar=True,  # Include color bar for intensity
+    annot_kws={"size": 14, "weight": "bold"},  # Bigger annotation
+    xticklabels=encoder.classes_, 
+    yticklabels=encoder.classes_
+)
+
+# Improve axis labels and title styling
+ax.set_xlabel("Predicted Label", fontsize=14, fontweight="bold", labelpad=10)
+ax.set_ylabel("True Label", fontsize=14, fontweight="bold", labelpad=10)
+ax.set_title("Confusion Matrix", fontsize=16, fontweight="bold", pad=15)
+
+# Rotate tick labels for readability
+plt.xticks(rotation=45, fontsize=12)
+plt.yticks(rotation=0, fontsize=12)
+
+# Display the confusion matrix in Streamlit
 st.pyplot(fig_cm)
 
 
@@ -492,29 +530,3 @@ elif graph_type == "Bubble Map":
     ).add_to(map_forecast)
     folium_static(map_forecast)
 
-# --- AQI Classification Using Logistic Regression ---
-st.markdown("<p class='big-font'>🏭 AQI Classification Using Logistic Regression</p>", unsafe_allow_html=True)
-
-df["AQI_Category"] = df["AQI"].apply(categorize_aqi)
-y_classification = df["AQI_Category"]
-encoder = LabelEncoder()
-y_classification_encoded = encoder.fit_transform(y_classification)
-X_classification = df[["AQI"]]
-
-X_train, X_test, y_train, y_test = train_test_split(X_classification, y_classification_encoded, test_size=0.2, random_state=42)
-log_reg = LogisticRegression()
-log_reg.fit(X_train, y_train)
-y_pred = log_reg.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-st.metric("📊 Classification Accuracy", f"{accuracy:.2%}")
-st.text("Classification Report:")
-st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
-
-# --- AQI Classification Distribution ---
-st.markdown("<p class='big-font'>📊 AQI Classification Distribution</p>", unsafe_allow_html=True)
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(x=df["AQI_Category"], palette="coolwarm", order=["Good", "Moderate", "Poor", "Very Poor", "Severe"])
-ax.set_xlabel("AQI Category")
-ax.set_ylabel("Count")
-ax.set_title("Distribution of AQI Categories")
-st.pyplot(fig)
