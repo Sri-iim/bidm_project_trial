@@ -321,6 +321,25 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 
 st.write("### 📊 Classification Report")
+
+# Generate classification report as a dictionary
+report_dict = classification_report(y_test, y_pred, target_names=encoder.classes_, output_dict=True)
+
+# Convert it into a DataFrame for styling
+df_report = pd.DataFrame(report_dict).T
+
+# Format numerical values to 2 decimal places
+df_report = df_report.round(2)
+
+# Rename index labels for clarity
+df_report.index = df_report.index.str.replace("_", " ").str.title()
+
+st.write("### 📊 Classification Report")
+
+# Use Streamlit's dataframe styling for better appearance
+st.dataframe(
+    df_report.style.format(precision=2).background_gradient(cmap="Blues").set_properties(**{"font-size": "14px"})
+)
 # st.text(classification_report(y_test, y_pred, target_names=encoder.classes_))
 
 # import matplotlib.pyplot as plt
