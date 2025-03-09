@@ -518,10 +518,3 @@ ax.set_xlabel("AQI Category")
 ax.set_ylabel("Count")
 ax.set_title("Distribution of AQI Categories")
 st.pyplot(fig)
-
-# --- Predict AQI Category ---
-st.markdown("<p class='big-font'>🔮 Predict AQI Category</p>", unsafe_allow_html=True)
-aqi_input = st.number_input("Enter AQI Value:", min_value=0, max_value=500, step=1)
-if st.button("Classify AQI"):
-    predicted_category = log_reg.predict([[aqi_input]])
-    st.success(f"The AQI Category is: {encoder.inverse_transform(predicted_category)[0]}")
