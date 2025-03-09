@@ -45,61 +45,64 @@ st.markdown(
 # st.image("pollution.jpeg", caption="Air Quality Monitoring", use_container_width=True)
 # st.markdown("This dashboard provides insights into air quality data, including visualization, prediction, and classification.")
 
-# --- Banner Styling with Background Image ---
+# --- Page Configuration ---
+st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
+
+# --- Styling ---
 st.markdown(
     """
     <style>
-        .banner {
-            position: relative;
-            width: 100%;
-            height: 200px; /* Adjust height as needed */
-            background: url("pollution.jpeg") no-repeat center center;
-            background-size: cover;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .banner::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Dark overlay for readability */
-            border-radius: 10px;
-        }
-        .banner-text {
-            position: relative;
-            z-index: 1;
-        }
-        .subtext {
-            text-align: center;
-            font-size: 18px;
-            color: #ddd;
-            margin-top: 10px;
-        }
+    .big-font {
+        font-size:30px !important;
+        font-weight: bold;
+    }
+    .st-expander > div {
+        padding: 10px;
+        background-color: #f0f8ff;
+        border-radius: 5px;
+    }
+    .st-metric-label {
+        font-size: 18px;
+    }
+    .st-metric-value {
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .banner {
+        background-color: #e6f7ff; /* Light blue background */
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex; /* Use flexbox for layout */
+        align-items: center; /* Center items vertically */
+    }
+    .banner-text {
+        flex: 2; /* Take up more space */
+        padding-right: 20px;
+    }
+    .banner-image {
+        flex: 1; /* Take up less space */
+        text-align: center;
+    }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# --- Banner with Background Image ---
+# --- Banner ---
 st.markdown(
     """
     <div class="banner">
-        <div class="banner-text">🌍 Air Quality Monitoring & Prediction Dashboard</div>
+        <div class="banner-text">
+            <h1 style="margin-bottom: 10px;">🌍 Air Quality Monitoring & Prediction Dashboard</h1>
+            <p>This dashboard provides insights into air quality data, including visualization, prediction, and classification.</p>
+        </div>
+        <div class="banner-image">
+            <img src="pollution.jpeg" alt="Air Quality Monitoring" style="max-width: 100%; border-radius: 5px;">
+        </div>
     </div>
-    <p class="subtext">
-        This dashboard provides insights into air quality data, including visualization, prediction, and classification.
-    </p>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 
