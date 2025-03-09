@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import folium
-from streamlit_folium import folium_static
+from streamlit_folium import st_folium
 import plotly.express as px
 from prophet import Prophet
 from sklearn.linear_model import LogisticRegression
@@ -152,9 +152,6 @@ filtered_df = df[(df["City"].isin(cities)) & (df["AQI"].between(aqi_range[0], aq
 
 # folium_static(m)
 
-import folium
-from streamlit_folium import folium_static
-
 st.markdown("<p class='big-font'>🗺️ Air Quality Index (AQI) - India Map</p>", unsafe_allow_html=True)
 m = folium.Map(location=[20.5937, 78.9629], zoom_start=5)
 
@@ -181,7 +178,7 @@ for _, row in filtered_df.iterrows():
         popup=f"{row['City']} - AQI: {aqi}"
     ).add_to(m)
 
-folium_static(m)
+st_folium(m)
 
 
 # --- List View ---
@@ -458,7 +455,7 @@ for _, row in filtered_df.iterrows():
         popup=f"{row['City']}: AQI {row['AQI']}"
     ).add_to(aqi_map)
 
-folium_static(aqi_map)
+st_folium(aqi_map)
 
 # --- Filter AQI Data Section ---
 st.markdown("<p class='big-font'>🔍 Filter AQI Data</p>", unsafe_allow_html=True)
@@ -482,7 +479,7 @@ for _, row in filtered_df_map.iterrows():
         popup=f"{row['City']}: AQI {row['AQI']}"
     ).add_to(aqi_map_filtered)
 
-folium_static(aqi_map_filtered)
+st_folium(aqi_map_filtered)
 
 # --- AQI Levels Across Cities Bar Chart ---
 st.markdown("<p class='big-font'>📊 AQI Levels Across Cities</p>", unsafe_allow_html=True)
@@ -556,5 +553,5 @@ elif graph_type == "Bubble Map":
         fill_opacity=0.6,
         popup=f"Predicted AQI: {forecast['yhat'].iloc[-1]:.2f} ({selected_city_forecast})"
     ).add_to(map_forecast)
-    folium_static(map_forecast)
+    st_folium(map_forecast)
 
