@@ -45,40 +45,38 @@ st.markdown(
 # st.image("pollution.jpeg", caption="Air Quality Monitoring", use_container_width=True)
 # st.markdown("This dashboard provides insights into air quality data, including visualization, prediction, and classification.")
 
-# --- Banner Styling ---
+# --- Banner Styling with Background Image ---
 st.markdown(
     """
     <style>
         .banner {
-            background-color: #004466;  /* Dark blue background */
-            padding: 20px;
+            position: relative;
+            width: 100%;
+            height: 200px; /* Adjust height as needed */
+            background: url("pollution.jpeg") no-repeat center center;
+            background-size: cover;
             border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
             color: white;
-            font-size: 24px;
-            font-weight: bold;
-            position: relative;
-        }
-        .banner img {
-            width: 100%;
-            max-height: 250px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        .banner-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            text-align: center;
             font-size: 28px;
             font-weight: bold;
-            color: white;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
+        }
+        .banner::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Dark overlay for readability */
             border-radius: 10px;
+        }
+        .banner-text {
+            position: relative;
+            z-index: 1;
         }
         .subtext {
             text-align: center;
@@ -91,11 +89,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Banner with Image ---
+# --- Banner with Background Image ---
 st.markdown(
     """
     <div class="banner">
-        <img src="pollution.jpeg" alt="Air Quality Monitoring">
         <div class="banner-text">🌍 Air Quality Monitoring & Prediction Dashboard</div>
     </div>
     <p class="subtext">
