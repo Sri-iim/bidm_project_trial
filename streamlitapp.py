@@ -372,43 +372,52 @@ st.dataframe(
 # # Display the figure in Streamlit
 # st.pyplot(fig_cm)
 
+import streamlit as st
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
 st.write("### 🎨 Enhanced Confusion Matrix")
 
-# Compute confusion matrix
-cm = confusion_matrix(y_test, y_pred)
+# Create an expander to show/hide the confusion matrix
+with st.expander("📌 Click to view Confusion Matrix"):
+    
+    # Compute confusion matrix
+    cm = confusion_matrix(y_test, y_pred)
 
-# Close previous plots to avoid overlap
-plt.close("all")
+    # Close previous plots to avoid overlap
+    plt.close("all")
 
-# Create a larger figure with better styling
-fig_cm, ax = plt.subplots(figsize=(6, 4))  # Increased size for better visibility
+    # Create a **smaller** figure for compact display
+    fig_cm, ax = plt.subplots(figsize=(4, 3))  # Reduced size
 
-# Customizing the heatmap for a polished look
-sns.heatmap(
-    cm, 
-    annot=True, 
-    fmt="d", 
-    cmap="coolwarm",  # More visually striking colormap
-    linewidths=1,  # Add grid lines for separation
-    linecolor="black", 
-    square=True, 
-    cbar=True,  # Include color bar for intensity
-    annot_kws={"size": 14, "weight": "bold"},  # Bigger annotation
-    xticklabels=encoder.classes_, 
-    yticklabels=encoder.classes_
-)
+    # Customizing the heatmap for a polished look
+    sns.heatmap(
+        cm, 
+        annot=True, 
+        fmt="d", 
+        cmap="coolwarm",  # More visually striking colormap
+        linewidths=0.5,  # Reduce grid lines thickness
+        linecolor="gray", 
+        square=True, 
+        cbar=False,  # Hide color bar to save space
+        annot_kws={"size": 10, "weight": "bold"},  # Smaller annotations
+        xticklabels=encoder.classes_, 
+        yticklabels=encoder.classes_
+    )
 
-# Improve axis labels and title styling
-ax.set_xlabel("Predicted Label", fontsize=14, fontweight="bold", labelpad=10)
-ax.set_ylabel("True Label", fontsize=14, fontweight="bold", labelpad=10)
-ax.set_title("Confusion Matrix", fontsize=16, fontweight="bold", pad=15)
+    # Improve axis labels and title styling
+    ax.set_xlabel("Predicted Label", fontsize=12, fontweight="bold", labelpad=5)
+    ax.set_ylabel("True Label", fontsize=12, fontweight="bold", labelpad=5)
+    ax.set_title("Confusion Matrix", fontsize=14, fontweight="bold", pad=10)
 
-# Rotate tick labels for readability
-plt.xticks(rotation=45, fontsize=12)
-plt.yticks(rotation=0, fontsize=12)
+    # Rotate tick labels for readability
+    plt.xticks(rotation=30, fontsize=10)
+    plt.yticks(rotation=0, fontsize=10)
 
-# Display the confusion matrix in Streamlit
-st.pyplot(fig_cm)
+    # Display the confusion matrix in Streamlit
+    st.pyplot(fig_cm)
+
 
 
 st.write("### 🔍 Predict AQI Category")
