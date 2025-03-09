@@ -334,7 +334,6 @@ df_report = df_report.round(2)
 # Rename index labels for clarity
 df_report.index = df_report.index.str.replace("_", " ").str.title()
 
-st.write("### 📊 Classification Report")
 
 # Use Streamlit's dataframe styling for better appearance
 st.dataframe(
@@ -389,7 +388,7 @@ with st.expander("📌 Click to view Confusion Matrix"):
     plt.close("all")
 
     # Create a **smaller** figure for compact display
-    fig_cm, ax = plt.subplots(figsize=(4, 3))  # Reduced size
+    fig_cm, ax = plt.subplots(figsize=(2, 2))  # Reduced size
 
     # Customizing the heatmap for a polished look
     sns.heatmap(
