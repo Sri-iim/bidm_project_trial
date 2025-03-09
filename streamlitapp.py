@@ -151,7 +151,7 @@ for _, row in filtered_df.iterrows():
     ).add_to(aqi_map)
 
 # Display the combined AQI map in Streamlit
-st_folium(aqi_map, key="aqi_map")
+st_folium(aqi_map, key="unique_aqi_map")
 
 
 # --- List View ---
@@ -349,7 +349,7 @@ for _, row in filtered_df_map.iterrows():
         popup=f"{row['City']}: AQI {row['AQI']}"
     ).add_to(aqi_map_filtered)
 
-st_folium(aqi_map_filtered)
+st_folium(aqi_map_filtered,key="unique_aqi_map_filter")
 
 # --- AQI Trends Over Time Line Chart ---
 st.markdown("<p class='big-font'>📈 AQI Trends Over Time</p>", unsafe_allow_html=True)
@@ -408,5 +408,5 @@ elif graph_type == "Bubble Map":
         fill_opacity=0.6,
         popup=f"Predicted AQI: {forecast['yhat'].iloc[-1]:.2f} ({selected_city_forecast})"
     ).add_to(map_forecast)
-    st_folium(map_forecast)
+    st_folium(map_forecast,key="unique_aqi_map_2")
 
